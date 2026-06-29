@@ -585,20 +585,16 @@ function LiveSurvey({ survey, responses, setResponses, submitted, setSubmitted, 
     setSubmitting(true);
     if(sheetsUrl){
       try {
+        const out = {"Survey": survey.name};
+        survey.sections.forEach(function(sec){
+          sec.questions.forEach(function(q){
+            const val = responses[q.id];
+            out[q.text || q.id] = Array.isArray(val) ? val.join(", ") : (val !== undefined ? val : "");
+          });
+        });
         await fetch(sheetsUrl,{method:"POST",mode:"no-cors",
           headers:{"Content-Type":"application/json"},
-body:JSON.stringify((()=>{
-  const out={"00_survey":survey.name};
-  survey.sections.forEach(sec=>sec.questions.forEach(q=>{
-    out[q.text||(q.id)] = responses[q.id]!==undefined
-      ? (Array.isArray(responses[q.id])
-          ? responses[q.id].join(", ")
-          : responses[q.id])
-      : "";
-  }));
-  return out;
-})())
-
+          body:JSON.stringify(out)});
       } catch(e){}
     }
     setSubmitted(true);
