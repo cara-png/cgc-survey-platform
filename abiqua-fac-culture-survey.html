@@ -32,9 +32,9 @@ const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwI9pLabW4kp4XqT-rM7
 
 const SURVEY = {
   clientName: "Abiqua School",
-  engagementName: "Faculty Culture & Growth Readiness Listening Initiative",
+  engagementName: "Culture & Growth Readiness Listening Initiative",
   intro: "Your candid responses help leadership understand what's working and what needs attention as the school grows. There are no right or wrong answers.",
-  confidentialityNote: "Responses are anonymous and confidential.",
+  confidentialityNote: "Responses are confidential.",
   sections: [
     { id:"s1", title:"About Your Role", tag:"Section 1",
       desc:"Helps us look at themes across different parts of the school. No response will be attributed to an individual.",
@@ -112,11 +112,39 @@ const SURVEY = {
   ]
 };
 
+const CLOSE_DATE = new Date("2026-08-26T23:59:00");
+
+function ClosedScreen() {
+  return (
+    <div style={{minHeight:"100vh",background:C.cream,display:"flex",alignItems:"center",justifyContent:"center",padding:40}}>
+      <div style={{textAlign:"center",maxWidth:480}}>
+        <div style={{background:C.forest,padding:"32px 40px 28px",borderRadius:12,marginBottom:32,position:"relative",overflow:"hidden"}}>
+          <div style={{position:"absolute",top:-40,right:-40,width:160,height:160,borderRadius:"50%",background:"rgba(107,140,122,.15)"}}/>
+          <div style={{fontSize:10,fontWeight:700,letterSpacing:3,color:C.mist,textTransform:"uppercase",marginBottom:10}}>Abiqua School</div>
+          <h1 style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:24,color:C.white,fontWeight:600,lineHeight:1.3}}>
+            Faculty & Staff<br/><em style={{fontWeight:400,color:C.mist}}>Culture Survey</em>
+          </h1>
+        </div>
+        <div style={{width:64,height:64,background:C.mist,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",fontSize:28}}>🔒</div>
+        <h2 style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:24,color:C.forest,marginBottom:12}}>This survey is now closed.</h2>
+        <p style={{fontSize:15,color:C.muted,lineHeight:1.75,marginBottom:10}}>
+          The response window for the August 2026 Faculty & Staff Culture Survey has ended.
+        </p>
+        <p style={{fontSize:14,color:C.muted,lineHeight:1.7}}>
+          If you believe you received this message in error, please contact Cara Gallagher at <strong style={{color:C.forest}}>cara@caragallagherconsulting.com</strong>.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [responses, setResponses] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [sec, setSec] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+
+  if (new Date() >= CLOSE_DATE) return <ClosedScreen />;
 
   const total = SURVEY.sections.length;
   const section = SURVEY.sections[sec];
