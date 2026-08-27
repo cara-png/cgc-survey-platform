@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abiqua School — Faculty & Staff Culture Survey</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #F7F4EE; color: #1A1A1A; -webkit-font-smoothing: antialiased; }
+  input, textarea, select, button { font-family: inherit; }
+  #root { min-height: 100vh; }
+  ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #F0EDE8; } ::-webkit-scrollbar-thumb { background: #D4CEC5; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const { useState } = React;
+
+const C = {
+  forest:"#2C4A3E", sage:"#6B8C7A", mist:"#C8D9D2",
+  cream:"#F7F4EE", sand:"#E8E0D0", ink:"#1A1A1A",
+  muted:"#6B6B6B", warm:"#C8895A", white:"#FFFFFF", border:"#D4CEC5",
+};
+
+const SHEETS_URL = "";
+
+const SURVEY = {
+  clientName: "Your School",
+  engagementName: "Faculty & Staff Culture Survey — Sample",
+  intro: "This is a sample survey designed to give you a sense of the instrument format, question types, and respondent experience.",
+  confidentialityNote: "Responses are confidential.",
+  sections: [
+    { id:"s1", title:"About Your Role", tag:"Section 1",
+      desc:"Helps us look at themes across different parts of the school. No response will be attributed to an individual.",
+      questions:[
+        {id:"q1",type:"radio",text:"Which best describes your primary role?",required:true,
+          options:["Faculty — Lower School","Faculty — Middle School","Faculty — Teaching across divisions","Staff — Administrative / Operations","Student Support / Teaching Aide"]},
+        {id:"q2",type:"radio",text:"How many years have you been at this school?",required:true,
+          options:["Less than 2 years","3–5 years","6–10 years","More than 10 years"]},
+      ]},
+    { id:"s2", title:"Trust & Psychological Safety", tag:"Section 2",
+      desc:"Rate your agreement with each statement. 1 = Strongly Disagree · 5 = Strongly Agree.",
+      questions:[
+        {id:"q3",type:"likert5",text:"I feel comfortable raising concerns or questions with school leadership.",required:true},
+        {id:"q4",type:"likert5",text:"I trust that my concerns are genuinely considered — not just acknowledged.",required:true},
+        {id:"q5",type:"likert5",text:"I feel safe being honest, even if my view differs from the majority or from leadership.",required:true},
+        {id:"q6",type:"text",text:"Is there anything that currently gets in the way of speaking up or being fully honest?",required:false},
+      ]},
+    { id:"s3", title:"Communication & Transparency", tag:"Section 3",
+      desc:"Rate your agreement. 1 = Strongly Disagree · 5 = Strongly Agree.",
+      questions:[
+        {id:"q7",type:"likert5",text:"I receive the information I need to do my job well.",required:true},
+        {id:"q8",type:"likert5",text:"When decisions are made that affect my work, I understand the reasoning behind them.",required:true},
+        {id:"q9",type:"likert5",text:"I feel informed about the school's direction and plans for the future.",required:true},
+        {id:"q10",type:"likert5",text:"Communication between faculty/staff and leadership feels like a two-way exchange.",required:true},
+      ]},
+    { id:"s4", title:"Mission, Culture & Identity", tag:"Section 4",
+      desc:"These questions get at what makes Abiqua distinctive — and how growth is affecting that.",
+      questions:[
+        {id:"q11",type:"likert5",text:"I have a clear understanding of our school's mission and what it stands for.",required:true},
+        {id:"q12",type:"likert5",text:"I can clearly articulate our school's current priorities and strategic direction — not just its values in general.",required:true},
+        {id:"q13",type:"likert5",text:"The way our school is growing feels consistent with its values and identity as an independent school.",required:true},
+        {id:"q14",type:"text",text:"In your own words: what is the most important thing about our school's culture that you would not want to lose as the school grows?",required:true},
+      ]},
+    { id:"s5", title:"Voice, Belonging & Shared Expectations", tag:"Section 5",
+      desc:"Rate your agreement. 1 = Strongly Disagree · 5 = Strongly Agree.",
+      questions:[
+        {id:"q15",type:"likert5",text:"I feel like a valued member of our school community.",required:true},
+        {id:"q16",type:"likert5",text:"There is a shared, consistent understanding of behavioral expectations for students across the school.",required:true},
+        {id:"q17",type:"likert5",text:"I have a clear understanding of what is expected of me as a professional — including effort, presence, and contribution beyond my immediate role.",required:true},
+        {id:"q18",type:"likert5",text:"I see consistent follow-through when expectations are not met — for students and adults alike.",required:true},
+        {id:"q19",type:"text",text:"If you could change one thing about how our school handles expectations — for students or adults — what would it be?",required:false},
+      ]},
+    { id:"s6", title:"Mission Ownership & Ambassadorship", tag:"Section 6",
+      desc:"Independent schools thrive when every adult sees themselves as a co-owner of the mission. These questions explore how that feels here right now.",
+      questions:[
+        {id:"q20",type:"likert5",text:"I see advancing our school's mission as part of my personal responsibility — not just something that belongs to leadership.",required:true},
+        {id:"q21",type:"likert5",text:"I speak positively about our school when I'm outside of work — to friends, neighbors, and prospective families.",required:true},
+        {id:"q22",type:"likert5",text:"I actively support community-building events and opportunities at our school when I am reasonably able to do so.",required:true},
+        {id:"q23",type:"radio",text:"Which statement most closely reflects how you think about your role at this school?",required:true,
+          options:[
+            "My job is to do my work well. The school's broader mission is something leadership drives.",
+            "I care about the mission, but I'm not sure how my role connects to it day-to-day.",
+            "I see myself as a contributor to the mission and try to act on that, though I don't always have the clarity or support I need.",
+            "I actively see myself as a co-owner of our school's mission — in and outside the classroom.",
+          ]},
+        {id:"q24",type:"text",text:"What would make it easier for you to be a strong ambassador for our school — inside and outside of school?",required:false},
+      ]},
+    { id:"s7", title:"Engagement & Readiness for Growth", tag:"Section 7",
+      desc:"How you're personally experiencing Abiqua's growth — and your own energy within it.",
+      questions:[
+        {id:"q25",type:"likert5",text:"I feel energized and engaged in my work here.",required:true},
+        {id:"q26",type:"likert5",text:"I regularly go above and beyond what's formally required because I care about our school's success.",required:true},
+        {id:"q27",type:"likert5",text:"I feel optimistic about our school's direction over the next 2–3 years.",required:true},
+        {id:"q28",type:"checkbox",text:"Which of the following best describes how you're experiencing our school's current growth? (Select all that apply.)",required:false,
+          options:["Excited — growth feels like opportunity","Cautiously optimistic — hopeful but watchful","Uncertain — I'm not sure what this means for our school","Stretched — growth is adding to an already full plate","Concerned — I worry we're moving faster than we're ready for","Proud — Abiqua is earning this growth"]},
+      ]},
+    { id:"s8", title:"Closing Reflections", tag:"Section 8",
+      desc:"A few final questions to round out the picture.",
+      questions:[
+        {id:"q29",type:"rating",text:"Overall, how would you rate your experience working here right now?",required:true},
+        {id:"q31",type:"text",text:"What is our school doing really well right now that leadership should be intentional about protecting?",required:true},
+        {id:"q32",type:"text",text:"If leadership could do one thing differently to support faculty and staff through this period of growth, what would it be?",required:false},
+        {id:"q33",type:"text",text:"Is there anything else you'd like leadership to hear that this survey hasn't asked about?",required:false},
+      ]},
+  ]
+};
+
+const CLOSE_DATE = new Date("2099-01-01T00:00:00");
+
+function ClosedScreen() {
+  return (
+    <div style={{minHeight:"100vh",background:C.cream,display:"flex",alignItems:"center",justifyContent:"center",padding:40}}>
+      <div style={{textAlign:"center",maxWidth:480}}>
+        <div style={{background:C.forest,padding:"32px 40px 28px",borderRadius:12,marginBottom:32,position:"relative",overflow:"hidden"}}>
+          <div style={{position:"absolute",top:-40,right:-40,width:160,height:160,borderRadius:"50%",background:"rgba(107,140,122,.15)"}}/>
+          <div style={{fontSize:10,fontWeight:700,letterSpacing:3,color:C.mist,textTransform:"uppercase",marginBottom:10}}>Abiqua School</div>
+          <h1 style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:24,color:C.white,fontWeight:600,lineHeight:1.3}}>
+            Faculty & Staff<br/><em style={{fontWeight:400,color:C.mist}}>Culture Survey</em>
+          </h1>
+        </div>
+        <div style={{width:64,height:64,background:C.mist,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",fontSize:28}}>🔒</div>
+        <h2 style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:24,color:C.forest,marginBottom:12}}>This survey is now closed.</h2>
+        <p style={{fontSize:15,color:C.muted,lineHeight:1.75,marginBottom:10}}>
+          The response window for the August 2026 Faculty & Staff Culture Survey has ended.
+        </p>
+        <p style={{fontSize:14,color:C.muted,lineHeight:1.7}}>
+          If you believe you received this message in error, please contact Cara Gallagher at <strong style={{color:C.forest}}>cara@caragallagherconsulting.com</strong>.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [responses, setResponses] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [sec, setSec] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+
+  if (new Date() >= CLOSE_DATE) return <ClosedScreen />;
+
+  const total = SURVEY.sections.length;
+  const section = SURVEY.sections[sec];
+
+  const setR = (qid, val) => setResponses(prev => ({...prev, [qid]: val}));
+  const toggleCb = (qid, val) => setResponses(prev => {
+    const cur = prev[qid] || [];
+    return {...prev, [qid]: cur.includes(val) ? cur.filter(v => v !== val) : [...cur, val]};
+  });
+
+  const canAdvance = () => section.questions.filter(q => q.required).every(q => {
+    const r = responses[q.id];
+    if (q.type === "checkbox") return r && r.length > 0;
+    return r !== undefined && r !== "" && r !== null;
+  });
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    try {
+      const out = {"Survey": "Demo"};
+      SURVEY.sections.forEach(s => s.questions.forEach(q => {
+        const val = responses[q.id];
+        out[q.text || q.id] = Array.isArray(val) ? val.join(", ") : (val !== undefined ? val : "");
+      }));
+      await fetch(SHEETS_URL, {
+        method: "POST", mode: "no-cors",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(out)
+      });
+    } catch(e) {}
+    setSubmitted(true);
+    setSubmitting(false);
+  };
+
+  if (submitted) return (
+    <div style={{minHeight:"100vh",background:C.cream,display:"flex",alignItems:"center",justifyContent:"center",padding:40}}>
+      <div style={{textAlign:"center",maxWidth:480}}>
+        <div style={{width:68,height:68,background:C.mist,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 24px",fontSize:32}}>✓</div>
+        <h2 style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:28,color:C.forest,marginBottom:14}}>Thank you for sharing.</h2>
+        <p style={{fontSize:15,color:C.muted,lineHeight:1.75,marginBottom:10}}>Your response has been recorded. Every perspective — honest, hopeful, or complicated — makes this work more meaningful.</p>
+        <p style={{fontSize:14,color:C.muted,lineHeight:1.7}}>Results will be shared with leadership in an anonymized summary. Your individual responses remain confidential.</p>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{minHeight:"100vh",background:C.cream}}>
+
+      {/* Header */}
+      <div style={{background:C.forest,padding:"40px 40px 36px",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",top:-60,right:-60,width:260,height:260,borderRadius:"50%",background:"rgba(107,140,122,.15)"}}/>
+        <div style={{position:"absolute",bottom:-50,left:"25%",width:180,height:180,borderRadius:"50%",background:"rgba(200,137,90,.08)"}}/>
+        <div style={{maxWidth:680,margin:"0 auto",position:"relative"}}>
+          <div style={{fontSize:10,fontWeight:700,letterSpacing:3,color:C.mist,textTransform:"uppercase",marginBottom:10}}>
+            {SURVEY.engagementName}
+          </div>
+          <h1 style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:28,color:C.white,fontWeight:600,lineHeight:1.25,marginBottom:8}}>
+            {SURVEY.clientName}<br/>
+            <em style={{fontStyle:"italic",fontWeight:400,color:C.mist,fontSize:24}}>Faculty & Staff Culture Survey</em>
+          </h1>
+          <p style={{fontSize:14,color:"rgba(200,217,210,.85)",marginTop:10,lineHeight:1.7,maxWidth:520}}>{SURVEY.intro}</p>
+          <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(200,217,210,.15)",color:C.mist,fontSize:12,fontWeight:600,padding:"6px 14px",borderRadius:4,marginTop:14}}>
+            🔒 {SURVEY.confidentialityNote}
+          </div>
+        </div>
+      </div>
+
+      {/* Progress */}
+      <div style={{maxWidth:680,margin:"0 auto",padding:"18px 40px 6px"}}>
+        <div style={{height:4,background:C.sand,borderRadius:2,overflow:"hidden"}}>
+          <div style={{height:"100%",width:`${((sec+1)/total)*100}%`,background:C.sage,borderRadius:2,transition:"width .4s"}}/>
+        </div>
+        <div style={{fontSize:11,color:C.muted,marginTop:6}}>Section {sec+1} of {total}</div>
+      </div>
+
+      {/* Section */}
+      <div style={{maxWidth:680,margin:"0 auto",padding:"18px 40px 32px"}}>
+        <div style={{borderLeft:`3px solid ${C.sage}`,paddingLeft:16,marginBottom:28}}>
+          <div style={{fontSize:10,fontWeight:700,letterSpacing:2.5,textTransform:"uppercase",color:C.sage,marginBottom:4}}>{section.tag}</div>
+          <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:22,fontWeight:600,color:C.forest}}>{section.title}</div>
+          {section.desc && <div style={{fontSize:13,color:C.muted,marginTop:6,lineHeight:1.65}}>{section.desc}</div>}
+        </div>
+
+        {section.questions.map(q => (
+          <QuestionRenderer key={q.id} q={q} value={responses[q.id]} onChange={v => setR(q.id,v)} onToggle={v => toggleCb(q.id,v)} />
+        ))}
+      </div>
+
+      {/* Nav */}
+      <div style={{maxWidth:680,margin:"0 auto",padding:"0 40px 56px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <button onClick={() => { setSec(s => s-1); window.scrollTo({top:0,behavior:"smooth"}); }}
+          disabled={sec===0}
+          style={{padding:"10px 22px",borderRadius:6,border:`1.5px solid ${C.border}`,background:"transparent",color:sec===0?C.border:C.muted,cursor:sec===0?"default":"pointer",fontSize:14,fontWeight:600,transition:"all .15s"}}>
+          ← Back
+        </button>
+        {sec < total-1
+          ? <button onClick={() => { setSec(s => s+1); window.scrollTo({top:0,behavior:"smooth"}); }}
+              disabled={!canAdvance()}
+              style={{padding:"10px 26px",borderRadius:6,border:"none",background:canAdvance()?C.forest:"#A0B5AE",color:C.white,cursor:canAdvance()?"pointer":"default",fontSize:14,fontWeight:600,transition:"all .15s"}}>
+              Next →
+            </button>
+          : <button onClick={handleSubmit} disabled={!canAdvance()||submitting}
+              style={{padding:"10px 26px",borderRadius:6,border:"none",background:canAdvance()?C.forest:"#A0B5AE",color:C.white,cursor:canAdvance()?"pointer":"default",fontSize:14,fontWeight:600,transition:"all .15s"}}>
+              {submitting ? "Submitting…" : "Submit Survey ✓"}
+            </button>
+        }
+      </div>
+    </div>
+  );
+}
+
+function QuestionRenderer({ q, value, onChange, onToggle }) {
+  return (
+    <div style={{marginBottom:28,paddingBottom:26,borderBottom:`1px solid ${C.border}`}}>
+      <div style={{fontSize:14.5,fontWeight:500,color:C.ink,marginBottom:14,lineHeight:1.55}}>
+        {q.text}
+        {q.required && <span style={{color:C.warm,marginLeft:3}}>*</span>}
+        {!q.required && <span style={{fontSize:12,color:C.muted,fontStyle:"italic",marginLeft:8,fontWeight:400}}>(optional)</span>}
+      </div>
+
+      {(q.type==="likert5"||q.type==="rating") && (
+        <div>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:C.muted,fontWeight:600,marginBottom:8}}>
+            <span>{q.type==="rating"?"Very poor":"Strongly Disagree"}</span>
+            <span>{q.type==="rating"?"Excellent":"Strongly Agree"}</span>
+          </div>
+          <div style={{display:"flex",gap:8}}>
+            {[1,2,3,4,5].map(n => (
+              <button key={n} onClick={() => onChange(n)} style={{
+                flex:1,padding:"11px 6px",borderRadius:6,
+                border:`1.5px solid ${value===n?"#2C4A3E":"#D4CEC5"}`,
+                background:value===n?"#2C4A3E":"#FFFFFF",
+                color:value===n?"#FFFFFF":"#6B6B6B",
+                cursor:"pointer",fontWeight:700,fontSize:14,transition:"all .12s"
+              }}>{n}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {q.type==="radio" && (
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {(q.options||[]).map((opt,i) => (
+            <label key={i} style={{display:"flex",alignItems:"flex-start",gap:10,cursor:"pointer"}}>
+              <input type="radio" name={q.id} value={opt} checked={value===opt} onChange={() => onChange(opt)}
+                style={{marginTop:3,accentColor:"#2C4A3E",width:15,height:15,flexShrink:0}}/>
+              <span style={{fontSize:14,color:C.ink,lineHeight:1.5}}>{opt}</span>
+            </label>
+          ))}
+        </div>
+      )}
+
+      {q.type==="checkbox" && (
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {(q.options||[]).map((opt,i) => (
+            <label key={i} style={{display:"flex",alignItems:"flex-start",gap:10,cursor:"pointer"}}>
+              <input type="checkbox" checked={(value||[]).includes(opt)} onChange={() => onToggle(opt)}
+                style={{marginTop:2,accentColor:"#2C4A3E",width:15,height:15,flexShrink:0}}/>
+              <span style={{fontSize:14,color:C.ink,lineHeight:1.5}}>{opt}</span>
+            </label>
+          ))}
+        </div>
+      )}
+
+      {q.type==="text" && (
+        <textarea value={value||""} onChange={e => onChange(e.target.value)}
+          placeholder="Share your thoughts…"
+          style={{width:"100%",padding:"11px 13px",borderRadius:6,border:`1.5px solid ${C.border}`,fontSize:14,color:C.ink,background:"#FFFFFF",minHeight:88,resize:"vertical",lineHeight:1.65,outline:"none"}}/>
+      )}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App/>);
+</script>
+</body>
+</html>
